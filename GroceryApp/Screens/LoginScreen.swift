@@ -20,10 +20,12 @@ struct LoginScreen: View {
     
     private func login() async {
         do {
-            let isLoggedIn = try await vm.login(username: username, password: password)
+            let loginResponseDTO = try await vm.login(username: username, password: password)
             
-            if isLoggedIn {
-                // take the user to grocery store
+            if loginResponseDTO.error {
+                errorMessage = loginResponseDTO.reason ?? "Unknown error"
+            } else {
+                // take the user to grocery categories list screen
             }
         } catch {
             errorMessage = error.localizedDescription
