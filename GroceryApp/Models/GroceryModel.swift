@@ -44,4 +44,13 @@ class GroceryModel {
         // (Beachte die Negation "!" - wir kehren den Fehlerwert um)
         return registerResponseDTO
     }
+    
+    func login(username: String, password: String) async throws -> Bool {
+        let loginPostData = ["username": username, "password": password]
+        
+        // resource
+        let resource = Resource(url: Constants.Urls.login, method: .post(JSONEncoder().encode(loginPostData)), modelType: <#T##T.Type#>)
+        
+        return true
+    }
 }
