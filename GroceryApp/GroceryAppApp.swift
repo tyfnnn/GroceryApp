@@ -11,11 +11,25 @@ import SwiftUI
 struct GroceryAppApp: App {
     
     @State private var groceryModelVM = GroceryModel()
+    @State private var appStateVM = AppState()
     
     var body: some Scene {
         WindowGroup {
-            RegistrationScreen()
-                .environment(groceryModelVM)
+            NavigationStack(path: $appStateVM.routes) {
+                RegistrationScreen()
+                    .navigationDestination(for: Route.self) { route in
+                        switch route {
+                        case .register:
+                            RegistrationScreen()
+                        case .login:
+                            LoginScreen()
+                        case .groceryCategoryList:
+                            Text("Grocery Category List")
+                        }
+                    }
+            }
+            .environment(groceryModelVM)
+            .environment(appStateVM)
         }
     }
 }
