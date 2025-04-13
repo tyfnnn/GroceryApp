@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct LoginScreen: View {
-    @State var vm = GroceryModel()
+    @Environment(GroceryModel.self) private var vm
+    @Environment(AppState.self) private var appState
     
     @State private var username: String = ""
     @State private var password: String = ""
@@ -26,6 +27,7 @@ struct LoginScreen: View {
                 errorMessage = loginResponseDTO.reason ?? "Unknown error"
             } else {
                 // take the user to grocery categories list screen
+                appState.routes.append(.groceryCategoryList)
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -33,30 +35,30 @@ struct LoginScreen: View {
     }
     
     var body: some View {
-        NavigationStack {
-            Form {
-                TextField("Username", text: $username)
-                    .textInputAutocapitalization(.never)
-                SecureField("Password", text: $password)
-                
-                HStack {
-                    Button("Login") {
-                        Task {
-                            await login()
-                        }
+        Form {
+            TextField("Username", text: $username)
+                .textInputAutocapitalization(.never)
+            SecureField("Password", text: $password)
+            
+            HStack {
+                Button("Login") {
+                    Task {
+                        await login()
                     }
-                    .buttonStyle(.borderless)
-                    .disabled(!isValidCredentials)
                 }
-                
-                Text(errorMessage)
+                .buttonStyle(.borderless)
+                .disabled(!isValidCredentials)
             }
-            .navigationTitle("Login")
+            
+            Text(errorMessage)
         }
+        .navigationTitle("Login")
     }
 }
+
 
 #Preview {
     LoginScreen()
         .environment(GroceryModel())
+        .environment(AppState())
 }

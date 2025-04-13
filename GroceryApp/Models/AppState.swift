@@ -16,6 +16,4 @@ enum Route: Hashable {
 @Observable
 class AppState {
     var routes: [Route] = []
-    
-    
 }
