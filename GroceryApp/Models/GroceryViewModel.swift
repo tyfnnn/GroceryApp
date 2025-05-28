@@ -11,7 +11,7 @@ import Observation
 // @Observable Makro ermöglicht die automatische Verfolgung von Änderungen an diesem Modell
 // und benachrichtigt die UI, wenn sich Daten ändern (Teil des Observation-Frameworks)
 @Observable
-class GroceryModel {
+class GroceryViewModel {
     
     // Erstellen einer Instanz des HTTP-Clients für Netzwerkanfragen
     let httpClient = HTTPClient()
@@ -21,8 +21,6 @@ class GroceryModel {
     // - Parameter password: Passwort für die Registrierung
     // - Returns: Boolean-Wert, der angibt, ob die Registrierung erfolgreich war (true) oder nicht (false)
     func register(username: String, password: String) async throws -> RegisterResponseDTO {
-        
-
         
         // Erstellen eines Wörterbuchs mit den Registrierungsdaten (Benutzername und Passwort)
         let registerData = ["username": username, "password": password]

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RegistrationScreen: View {
-    @Environment(GroceryModel.self) private var groceryModelVM
+    @Environment(GroceryViewModel.self) private var groceryModelVM
     @Environment(AppState.self) private var appStateVM
     
     @State private var username: String = ""
@@ -16,7 +16,6 @@ struct RegistrationScreen: View {
     @State var errorMessage: String = ""
     
     private func register() async {
-        
         do {
             let registerResponseDTO = try await groceryModelVM.register(username: username, password: password)
             if !registerResponseDTO.error {
@@ -59,7 +58,7 @@ struct RegistrationScreen: View {
 
 struct RegistrationScreenContainer: View {
     @State private var appState = AppState()
-    @State private var groceryModel = GroceryModel()
+    @State private var groceryModel = GroceryViewModel()
     
     var body: some View {
         NavigationStack(path: $appState.routes) {
@@ -81,5 +80,5 @@ struct RegistrationScreenContainer: View {
 #Preview {
     RegistrationScreenContainer()
         .environment(AppState())
-        .environment(GroceryModel())
+        .environment(GroceryViewModel())
 }

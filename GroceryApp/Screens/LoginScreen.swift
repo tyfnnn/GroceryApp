@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginScreen: View {
-    @Environment(GroceryModel.self) private var vm
+    @Environment(GroceryViewModel.self) private var vm
     @Environment(AppState.self) private var appState
     
     @State private var username: String = ""
@@ -16,7 +16,7 @@ struct LoginScreen: View {
     @State private var errorMessage: String = ""
     
     private var isValidCredentials: Bool {
-        !username.isEmpty && !password.isEmpty
+        !username.isEmptyOrWhitespace && !password.isEmptyOrWhitespace && (password.count >= 6 && password.count <= 10)
     }
     
     private func login() async {
@@ -59,6 +59,6 @@ struct LoginScreen: View {
 
 #Preview {
     LoginScreen()
-        .environment(GroceryModel())
+        .environment(GroceryViewModel())
         .environment(AppState())
 }

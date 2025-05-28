@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct GroceryAppApp: App {
     
-    @State private var groceryModelVM = GroceryModel()
+    @State private var groceryVM = GroceryViewModel()
     @State private var appStateVM = AppState()
     
     var body: some Scene {
@@ -28,7 +28,7 @@ struct GroceryAppApp: App {
                         }
                     }
             }
-            .environment(groceryModelVM)
+            .environment(groceryVM)
             .environment(appStateVM)
         }
     }
