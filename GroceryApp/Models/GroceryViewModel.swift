@@ -7,9 +7,8 @@
 
 import Foundation
 import Observation
+import GroceryAppSharedDTO
 
-// @Observable Makro ermöglicht die automatische Verfolgung von Änderungen an diesem Modell
-// und benachrichtigt die UI, wenn sich Daten ändern (Teil des Observation-Frameworks)
 @Observable
 class GroceryViewModel {
     

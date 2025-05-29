@@ -1,0 +1,15 @@
+{
+  "originHash" : "cb4b48a7e95648ae0dfdda10eeca6e4ff2ac41b284f67597275eb06dc8b58f73",
+  "pins" : [
+    {
+      "identity" : "groceryappshareddto",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tyfnnn/GroceryAppSharedDTO.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "11b95e2d8643357793233ac65d2e809ca6ac4f43"
+      }
+    }
+  ],
+  "version" : 3
+}

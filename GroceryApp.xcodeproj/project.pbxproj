@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		82AD57572DE8FBC300E59D54 /* GroceryAppSharedDTO in Frameworks */ = {isa = PBXBuildFile; productRef = 82AD57562DE8FBC300E59D54 /* GroceryAppSharedDTO */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		82BEDCAB2D9A88A00098BD80 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				82AD57572DE8FBC300E59D54 /* GroceryAppSharedDTO in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = GroceryApp;
 			packageProductDependencies = (
+				82AD57562DE8FBC300E59D54 /* GroceryAppSharedDTO */,
 			);
 			productName = GroceryApp;
 			productReference = 82BEDC9A2D9A889F0098BD80 /* GroceryApp.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 82BEDC912D9A889F0098BD80;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				82AD57552DE8FBC300E59D54 /* XCRemoteSwiftPackageReference "GroceryAppSharedDTO" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 82BEDC9B2D9A889F0098BD80 /* Products */;
 			projectDirPath = "";
@@ -552,6 +561,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		82AD57552DE8FBC300E59D54 /* XCRemoteSwiftPackageReference "GroceryAppSharedDTO" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tyfnnn/GroceryAppSharedDTO.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		82AD57562DE8FBC300E59D54 /* GroceryAppSharedDTO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 82AD57552DE8FBC300E59D54 /* XCRemoteSwiftPackageReference "GroceryAppSharedDTO" */;
+			productName = GroceryAppSharedDTO;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 82BEDC922D9A889F0098BD80 /* Project object */;
 }

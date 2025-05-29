@@ -78,7 +78,9 @@ struct RegistrationScreenContainer: View {
 }
 
 #Preview {
-    RegistrationScreenContainer()
-        .environment(AppState())
-        .environment(GroceryViewModel())
+    NavigationStack {
+        RegistrationScreenContainer()
+            .environment(AppState())
+            .environment(GroceryViewModel())
+    }
 }
