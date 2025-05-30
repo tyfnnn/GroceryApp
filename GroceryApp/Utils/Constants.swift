@@ -13,5 +13,9 @@ struct Constants {
     struct Urls {
         static let register = URL(string: "\(baseUrlPath)/register")!
         static let login = URL(string: "\(baseUrlPath)/login")!
+        
+        static func saveGroceryCategoryBy(userId: UUID) -> URL {
+            return URL(string: "\(baseUrlPath)/users/\(userId)/grocery-categories")!
+        }
     }
 }

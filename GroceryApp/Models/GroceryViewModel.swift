@@ -58,4 +58,20 @@ class GroceryViewModel {
         }
         return loginResponseDTO
     }
+    
+    
+    func saveGroceryCategory(_ groceryCategoryRequestDTO: GroceryCategoryRequestDTO) async throws {
+        let defaults = UserDefaults.standard
+        guard let userIdString = defaults.string(forKey: "userId"),
+              let userId = UUID(uuidString: userIdString)
+        else {
+            return
+        }
+        
+        let resource = try Resource(url: Constants.Urls.saveGroceryCategoryBy(userId: userId), method: .post(JSONEncoder().encode(groceryCategoryRequestDTO)), modelType: GroceryCategoryResponseDTO.self)
+        
+        let newGroceryCategory = try await httpClient.load(resource)
+        
+        
+    }
 }
