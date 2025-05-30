@@ -12,33 +12,22 @@ import GroceryAppSharedDTO
 @Observable
 class GroceryViewModel {
     
-    // Erstellen einer Instanz des HTTP-Clients für Netzwerkanfragen
+    var groceryCategories: [GroceryCategoryResponseDTO] = []
+    
     let httpClient = HTTPClient()
     
-    // Funktion zur Benutzerregistrierung, die asynchron arbeitet und möglicherweise Fehler wirft
-    // - Parameter username: Benutzername für die Registrierung
-    // - Parameter password: Passwort für die Registrierung
-    // - Returns: Boolean-Wert, der angibt, ob die Registrierung erfolgreich war (true) oder nicht (false)
     func register(username: String, password: String) async throws -> RegisterResponseDTO {
         
-        // Erstellen eines Wörterbuchs mit den Registrierungsdaten (Benutzername und Passwort)
         let registerData = ["username": username, "password": password]
         
-        // Erstellen einer Resource für die HTTP-Anfrage:
-        // - URL: Die Registrierungs-URL aus den Konstanten
-        // - Methode: POST mit den kodierten Registrierungsdaten
-        // - Erwarteter Antworttyp: RegisterResponseDTO
         let resource = try Resource(
             url: Constants.Urls.register,
             method: .post(JSONEncoder().encode(registerData)),
             modelType: RegisterResponseDTO.self
         )
-        
-        // Asynchrones Senden der Anfrage und Warten auf die Antwort
+    
         let registerResponseDTO = try await httpClient.load(resource)
         
-        // Gibt true zurück, wenn kein Fehler aufgetreten ist, andernfalls false
-        // (Beachte die Negation "!" - wir kehren den Fehlerwert um)
         return registerResponseDTO
     }
     
@@ -60,18 +49,40 @@ class GroceryViewModel {
     }
     
     
+    func populateGroceryCategories() async throws {
+        guard let userId = UserDefaults.standard.userId else {
+            return
+        }
+        
+        let resource = Resource(url: Constants.Urls.groceryCategoriesBy(userId: userId), modelType: [GroceryCategoryResponseDTO].self)
+        
+        groceryCategories = try await httpClient.load(resource)
+
+    }
+    
+    
     func saveGroceryCategory(_ groceryCategoryRequestDTO: GroceryCategoryRequestDTO) async throws {
-        let defaults = UserDefaults.standard
-        guard let userIdString = defaults.string(forKey: "userId"),
-              let userId = UUID(uuidString: userIdString)
-        else {
+        guard let userId = UserDefaults.standard.userId else {
             return
         }
         
         let resource = try Resource(url: Constants.Urls.saveGroceryCategoryBy(userId: userId), method: .post(JSONEncoder().encode(groceryCategoryRequestDTO)), modelType: GroceryCategoryResponseDTO.self)
         
-        let newGroceryCategory = try await httpClient.load(resource)
+        let groceryCategory = try await httpClient.load(resource)
         
+        groceryCategories.append(groceryCategory)
+    }
+    
+    func deleteGroceryCategory(groceryCategoryId: UUID) async throws {
+        guard let userId = UserDefaults.standard.userId else {
+            return
+        }
         
+        let resource = Resource(url: Constants.Urls.deleteCategoriesBy(groceryCategoryId: groceryCategoryId, userId: userId), method: .delete, modelType: GroceryCategoryResponseDTO.self)
+        
+        let deletedGroceryCategory = try await httpClient.load(resource)
+        
+        // remove the delted category from the list
+        groceryCategories = groceryCategories.filter { $0.id != deletedGroceryCategory.id }
     }
 }

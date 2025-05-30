@@ -6,16 +6,24 @@
 //
 
 import SwiftUI
+import GroceryAppSharedDTO
 
 struct AddGroceryCategoryScreen: View {
-    @State private var groceryVM: GroceryViewModel
+    @Environment(GroceryViewModel.self) private var groceryVM
     @State private var title: String = ""
     @State private var colorCode: String = "#2ecc71"
     
     @Environment(\.dismiss) private var dismiss
     
     private func saveGroceryCategory() async {
+        let groceryCategoryRequestDTO = GroceryCategoryRequestDTO(title: title, colorCode: colorCode)
         
+        do {
+            try await groceryVM.saveGroceryCategory(groceryCategoryRequestDTO)
+            dismiss()
+        } catch {
+            print(error.localizedDescription)
+        }
     }
     
     private var isFormValid: Bool {
@@ -47,6 +55,7 @@ struct AddGroceryCategoryScreen: View {
 
 #Preview {
     NavigationStack {
-        AddGroceryCategoryScreen(groceryVM: GroceryViewModel())
+        AddGroceryCategoryScreen()
+            .environment(GroceryViewModel())
     }
 }
