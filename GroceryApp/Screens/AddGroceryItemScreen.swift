@@ -56,6 +56,7 @@ struct AddGroceryItemScreen: View {
                     Button("Save") {
                         Task {
                             await saveGroceryItem()
+                            dismiss()
                         }
                     }.disabled(!isFormValid)
                 }

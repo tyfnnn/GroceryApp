@@ -8,7 +8,7 @@
 import Foundation
 import GroceryAppSharedDTO
 
-extension GroceryCategoryResponseDTO: @retroactive Identifiable, Hashable {
+extension GroceryCategoryResponseDTO: @retroactive Identifiable, @retroactive Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }

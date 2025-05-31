@@ -106,9 +106,32 @@ struct GroceryCategoryListScreen: View {
     }
 }
 
-#Preview {
-    NavigationStack {
-        GroceryCategoryListScreen()
-            .environment(GroceryViewModel())
+struct GroceryCategoryListScreenContainer: View {
+    @State private var appState = AppState()
+    @State private var groceryModel = GroceryViewModel()
+    
+    var body: some View {
+        NavigationStack(path: $appState.routes) {
+            GroceryCategoryListScreen()
+                .navigationDestination(for: Route.self) { route in
+                    switch route {
+                    case .register:
+                        RegistrationScreen()
+                    case .login:
+                        LoginScreen()
+                    case .groceryCategoryList:
+                        Text("Grocery Category List")
+                    case .groceryCategoryDetail(let groceryCategory):
+                        GroceryDetailScreen(groceryCategory: groceryCategory)
+                    }
+                    
+                }
+        }
+        .environment(groceryModel)
+        .environment(appState)
     }
+}
+
+#Preview {
+    GroceryCategoryListScreenContainer()
 }
