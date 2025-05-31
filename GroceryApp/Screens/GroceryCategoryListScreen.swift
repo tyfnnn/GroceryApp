@@ -36,15 +36,48 @@ struct GroceryCategoryListScreen: View {
     }
     
     var body: some View {
-        List {
-            ForEach(groceryVM.groceryCategories) { groceryCategory in
-                HStack {
-                    Circle()
-                        .fill(Color.fromHex(groceryCategory.colorCode))
-                        .frame(width: 24, height: 24)
-                    Text(groceryCategory.title)
+        Group {
+            if groceryVM.groceryCategories.isEmpty {
+                // Empty state view
+                VStack(spacing: 16) {
+                    Image(systemName: "list.bullet.circle")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
+                    
+                    Text("Keine Kategorien vorhanden")
+                        .font(.title2)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                    
+                    Text("Fügen Sie Ihre erste Kategorie hinzu, um zu beginnen")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                    
+                    Button {
+                        isPresented = true
+                    } label: {
+                        Label("Kategorie hinzufügen", systemImage: "plus.circle.fill")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding(.top)
                 }
-            }.onDelete(perform: deleteGroceryCategory)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemGroupedBackground))
+            } else {
+                // List with categories
+                List {
+                    ForEach(groceryVM.groceryCategories) { groceryCategory in
+                        HStack {
+                            Circle()
+                                .fill(Color.fromHex(groceryCategory.colorCode))
+                                .frame(width: 24, height: 24)
+                            Text(groceryCategory.title)
+                        }
+                    }.onDelete(perform: deleteGroceryCategory)
+                }
+            }
         }
         .task {
             await fetchGroceryCategories()

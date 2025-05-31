@@ -13,6 +13,9 @@ import GroceryAppSharedDTO
 class GroceryViewModel {
     
     var groceryCategories: [GroceryCategoryResponseDTO] = []
+    var groceryItems: [GroceryItemResponseDTO] = []
+    
+    var groceryCategory: GroceryCategoryResponseDTO?
     
     let httpClient = HTTPClient()
     
@@ -84,5 +87,16 @@ class GroceryViewModel {
         
         // remove the delted category from the list
         groceryCategories = groceryCategories.filter { $0.id != deletedGroceryCategory.id }
+    }
+    
+    func saveGroceryItem(_ groceryItemRequestDTO: GroceryItemRequestDTO, groceryCategoryId: UUID) async throws {
+        guard let userId = UserDefaults.standard.userId else {
+            return
+        }
+        
+        let resource = try Resource(url: Constants.Urls.saveGroceryItem(userId: userId, groceryCategoryId: groceryCategoryId), method: .post(JSONEncoder().encode(groceryItemRequestDTO)), modelType: GroceryItemResponseDTO.self)
+        
+        let newGroceryItem = try await httpClient.load(resource)
+        groceryItems.append(newGroceryItem)
     }
 }
