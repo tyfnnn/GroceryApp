@@ -31,6 +31,13 @@ struct AddGroceryItemScreen: View {
         else { return }
         
         let groceryItemRequestDTO = GroceryItemRequestDTO(title: title, price: price, quantity: quantity)
+        
+        do {
+            try await groceryVM.saveGroceryItem(groceryItemRequestDTO, groceryCategoryId: groceryCategory.id)
+        } catch {
+            print(error.localizedDescription)
+        }
+        
     }
 
     var body: some View {
@@ -59,5 +66,5 @@ struct AddGroceryItemScreen: View {
 #Preview {
     NavigationStack {
         AddGroceryItemScreen()
-    }
+    }.environment(GroceryViewModel())
 }

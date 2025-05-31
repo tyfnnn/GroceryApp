@@ -69,11 +69,13 @@ struct GroceryCategoryListScreen: View {
                 // List with categories
                 List {
                     ForEach(groceryVM.groceryCategories) { groceryCategory in
-                        HStack {
-                            Circle()
-                                .fill(Color.fromHex(groceryCategory.colorCode))
-                                .frame(width: 24, height: 24)
-                            Text(groceryCategory.title)
+                        NavigationLink(value: Route.groceryCategoryDetail(groceryCategory)) {
+                            HStack {
+                                Circle()
+                                    .fill(Color.fromHex(groceryCategory.colorCode))
+                                    .frame(width: 24, height: 24)
+                                Text(groceryCategory.title)
+                            }
                         }
                     }.onDelete(perform: deleteGroceryCategory)
                 }

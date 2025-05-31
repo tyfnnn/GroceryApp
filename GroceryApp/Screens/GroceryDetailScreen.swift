@@ -27,7 +27,9 @@ struct GroceryDetailScreen: View {
                 }
             }
         }.sheet(isPresented: $isPresented) {
-            // hasdlfhl
+            NavigationStack {
+                AddGroceryItemScreen()
+            }
         }
         .onAppear {
             groceryVM.groceryCategory = groceryCategory
