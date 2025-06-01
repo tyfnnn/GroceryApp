@@ -49,11 +49,19 @@ struct LoginScreen: View {
                 }
                 .buttonStyle(.borderless)
                 .disabled(!isValidCredentials)
+                Spacer()
+                Button("Register") {
+                    Task {
+                        appState.routes.append(.register)
+                    }
+                }
+                .buttonStyle(.borderless)
             }
             
             Text(errorMessage)
         }
         .navigationTitle("Login")
+        .navigationBarBackButtonHidden(true)
     }
 }
 

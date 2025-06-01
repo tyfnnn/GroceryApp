@@ -51,6 +51,12 @@ class GroceryViewModel {
         return loginResponseDTO
     }
     
+    func logout() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "userId")
+        defaults.removeObject(forKey: "authToken")
+    }
+    
     func populateGroceryItemsBy(groceryCategoryId: UUID) async throws {
         guard let userId = UserDefaults.standard.userId else {
             return
