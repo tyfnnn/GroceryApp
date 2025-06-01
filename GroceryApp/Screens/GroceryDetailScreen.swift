@@ -24,15 +24,50 @@ struct GroceryDetailScreen: View {
     
     var body: some View {
         VStack {
-            GroceryItemListView(groceryItems: groceryVM.groceryItems)
-        }.navigationTitle(groceryCategory.title)
+            Group {
+                if groceryVM.groceryItems.isEmpty {
+                    // Empty state view
+                    VStack(spacing: 16) {
+                        Image(systemName: "cart.circle")
+                            .font(.system(size: 60))
+                            .foregroundColor(.gray)
+                        
+                        Text("Keine Artikel vorhanden")
+                            .font(.title2)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+                        
+                        Text("Fügen Sie Ihren ersten Artikel zu \"\(groceryCategory.title)\" hinzu")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                        
+                        Button {
+                            isPresented = true
+                        } label: {
+                            Label("Artikel hinzufügen", systemImage: "plus.circle.fill")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .padding(.top)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(.systemGroupedBackground))
+                } else {
+                    // List with grocery items
+                    GroceryItemListView(groceryItems: groceryVM.groceryItems)
+                }
+            }
+        }
+        .navigationTitle(groceryCategory.title)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Add Grocery Item") {
                     isPresented = true
                 }
             }
-        }.sheet(isPresented: $isPresented) {
+        }
+        .sheet(isPresented: $isPresented) {
             NavigationStack {
                 AddGroceryItemScreen()
             }
