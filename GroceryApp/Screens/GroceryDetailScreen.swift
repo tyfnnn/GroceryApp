@@ -14,11 +14,17 @@ struct GroceryDetailScreen: View {
     let groceryCategory: GroceryCategoryResponseDTO
     @State private var isPresented: Bool = false
     
+    private func populateGroceryItems() async {
+        do {
+            try await groceryVM.populateGroceryItemsBy(groceryCategoryId: groceryCategory.id)
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
     var body: some View {
         VStack {
-            List(1...10, id: \.self) { index in
-                Text("Grocery Item \(index)")
-            }
+            GroceryItemListView(groceryItems: groceryVM.groceryItems)
         }.navigationTitle(groceryCategory.title)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -34,12 +40,15 @@ struct GroceryDetailScreen: View {
         .onAppear {
             groceryVM.groceryCategory = groceryCategory
         }
+        .task {
+            await populateGroceryItems()
+        }
     }
 }
 
 #Preview {
     NavigationStack {
-        GroceryDetailScreen(groceryCategory: GroceryCategoryResponseDTO(id: UUID(), title: "Lebensmittel", colorCode: "#2ecc71"))
+        GroceryDetailScreen(groceryCategory: GroceryCategoryResponseDTO(id: UUID(uuidString: "3fe323ea-86b0-429c-add9-8bdfa1816508")!, title: "Lebensmittel", colorCode: "#2ecc71"))
     }
     .environment(GroceryViewModel())
 }
