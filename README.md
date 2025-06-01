@@ -2,6 +2,8 @@
 
 A complete full-stack grocery management application built with **SwiftUI** (iOS) and **Vapor** (server-side Swift), demonstrating modern Swift development across the entire technology stack.
 
+[🇩🇪 Deutsche Version](README_DE.md)
+
 ## 📱 Project Overview
 
 GroceryApp is a comprehensive grocery list management application that allows users to:
