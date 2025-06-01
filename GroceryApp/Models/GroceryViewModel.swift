@@ -85,6 +85,20 @@ class GroceryViewModel {
         groceryCategories.append(groceryCategory)
     }
     
+    func deleteGroceryItem(groceryCategoryId: UUID, groceryItemId: UUID) async throws {
+        guard let userId = UserDefaults.standard.userId else {
+            return
+        }
+        
+        let resource = Resource(url: Constants.Urls.deleteCategoriesBy(groceryCategoryId: groceryCategoryId, userId: userId), method: .delete, modelType: GroceryItemResponseDTO.self)
+        
+        let deletedGroceryItem = try await httpClient.load(resource)
+
+        groceryItems = groceryItems.filter { $0.id != deletedGroceryItem.id }
+        
+        
+    }
+    
     func deleteGroceryCategory(groceryCategoryId: UUID) async throws {
         guard let userId = UserDefaults.standard.userId else {
             return

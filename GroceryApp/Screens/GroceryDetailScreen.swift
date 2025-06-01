@@ -22,6 +22,16 @@ struct GroceryDetailScreen: View {
         }
     }
     
+    private func deleteGroceryItem(groceryItemId: UUID) {
+        Task {
+            do {
+                try await groceryVM.deleteGroceryItem(groceryCategoryId: groceryCategory.id, groceryItemId: groceryItemId)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
     var body: some View {
         VStack {
             Group {
@@ -55,7 +65,7 @@ struct GroceryDetailScreen: View {
                     .background(Color(.systemGroupedBackground))
                 } else {
                     // List with grocery items
-                    GroceryItemListView(groceryItems: groceryVM.groceryItems)
+                    GroceryItemListView(groceryItems: groceryVM.groceryItems, onDelete: deleteGroceryItem)
                 }
             }
         }
