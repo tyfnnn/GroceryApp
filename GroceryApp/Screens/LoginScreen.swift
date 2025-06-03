@@ -31,6 +31,7 @@ struct LoginScreen: View {
             }
         } catch {
             errorMessage = error.localizedDescription
+            appState.errorWrapper = ErrorWrapper(error: error, guidance: error.localizedDescription)
         }
     }
 
