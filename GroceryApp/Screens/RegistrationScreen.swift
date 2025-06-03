@@ -13,46 +13,101 @@ struct RegistrationScreen: View {
     
     @State private var username: String = ""
     @State private var password: String = ""
-    @State var errorMessage: String = ""
+    @State private var showError = false
     
     private func register() async {
         do {
             let registerResponseDTO = try await groceryModelVM.register(username: username, password: password)
             if !registerResponseDTO.error {
-                // take user to the login screen
                 appStateVM.routes.append(.login)
-            } else if let reason = registerResponseDTO.reason {
-                // Display the error reason from the server
-                errorMessage = reason
+            } else {
+                showError = true
             }
         } catch {
-            errorMessage = error.localizedDescription
+            showError = true
         }
     }
-    
     
     private var isValidForm: Bool {
         !username.isEmptyOrWhitespace && !password.isEmptyOrWhitespace && (password.count >= 6 && password.count <= 10)
     }
     
     var body: some View {
-        Form {
-            TextField("Email", text: $username)
-                .textInputAutocapitalization(.never)
-            SecureField("Password", text: $password)
-            
-            HStack {
-                Button("Register") {
-                    Task {
-                        await register()
+        ZStack {
+            Form {
+                TextField("Email", text: $username)
+                    .textInputAutocapitalization(.never)
+                SecureField("Password", text: $password)
+                
+                HStack {
+                    Button("Register") {
+                        Task {
+                            await register()
+                        }
+                    }
+                    .buttonStyle(.borderless)
+                    .disabled(!isValidForm || groceryModelVM.isLoading)
+                    
+                    if groceryModelVM.isLoading {
+                        ProgressView()
+                            .scaleEffect(0.8)
                     }
                 }
-                .buttonStyle(.borderless)
-                .disabled(!isValidForm)
             }
-            Text(errorMessage)
+            .navigationTitle("Registration")
+            .disabled(groceryModelVM.isLoading)
+            
+            // Error Overlay
+            if showError, let error = groceryModelVM.currentError {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation {
+                            showError = false
+                            groceryModelVM.clearError()
+                        }
+                    }
+                
+                VStack {
+                    Spacer()
+                    
+                    if error.type == .validation {
+                        ErrorView.validationError(
+                            message: error.message,
+                            dismissAction: {
+                                withAnimation {
+                                    showError = false
+                                    groceryModelVM.clearError()
+                                }
+                            }
+                        )
+                    } else {
+                        ErrorView.networkError(
+                            message: error.message,
+                            retryAction: {
+                                withAnimation {
+                                    showError = false
+                                    groceryModelVM.clearError()
+                                }
+                                Task {
+                                    await register()
+                                }
+                            },
+                            dismissAction: {
+                                withAnimation {
+                                    showError = false
+                                    groceryModelVM.clearError()
+                                }
+                            }
+                        )
+                    }
+                    
+                    Spacer()
+                }
+                .transition(.opacity.combined(with: .scale))
+            }
         }
-        .navigationTitle("Registration")
+        .animation(.easeInOut(duration: 0.3), value: showError)
     }
 }
 
@@ -74,7 +129,6 @@ struct RegistrationScreenContainer: View {
                     case .groceryCategoryDetail(let groceryCategory):
                         GroceryDetailScreen(groceryCategory: groceryCategory)
                     }
-                    
                 }
         }
     }

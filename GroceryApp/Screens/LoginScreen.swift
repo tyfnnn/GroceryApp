@@ -13,7 +13,7 @@ struct LoginScreen: View {
     
     @State private var username: String = ""
     @State private var password: String = ""
-    @State private var errorMessage: String = ""
+    @State private var showError = false
     
     private var isValidCredentials: Bool {
         !username.isEmptyOrWhitespace && !password.isEmptyOrWhitespace && (password.count >= 6 && password.count <= 10)
@@ -24,48 +24,109 @@ struct LoginScreen: View {
             let loginResponseDTO = try await vm.login(username: username, password: password)
             
             if loginResponseDTO.error {
-                errorMessage = loginResponseDTO.reason ?? "Unknown error"
+                showError = true
             } else {
-                // take the user to grocery categories list screen
                 appState.routes.append(.groceryCategoryList)
             }
         } catch {
-            errorMessage = error.localizedDescription
-            appState.errorWrapper = ErrorWrapper(error: error, guidance: error.localizedDescription)
+            showError = true
         }
     }
 
-    
     var body: some View {
-        Form {
-            TextField("Username", text: $username)
-                .textInputAutocapitalization(.never)
-            SecureField("Password", text: $password)
-            
-            HStack {
-                Button("Login") {
-                    Task {
-                        await login()
+        ZStack {
+            Form {
+                TextField("Username", text: $username)
+                    .textInputAutocapitalization(.never)
+                SecureField("Password", text: $password)
+                
+                HStack {
+                    Button("Login") {
+                        Task {
+                            await login()
+                        }
+                    }
+                    .buttonStyle(.borderless)
+                    .disabled(!isValidCredentials || vm.isLoading)
+                    
+                    if vm.isLoading {
+                        ProgressView()
+                            .scaleEffect(0.8)
                     }
                 }
-                .buttonStyle(.borderless)
-                .disabled(!isValidCredentials)
-                Spacer()
-                Button("Register") {
-                    Task {
-                        appState.routes.append(.register)
-                    }
-                }
-                .buttonStyle(.borderless)
             }
+            .navigationTitle("Login")
+            .disabled(vm.isLoading)
             
-            Text(errorMessage)
+            // Error Overlay
+            if showError, let error = vm.currentError {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation {
+                            showError = false
+                            vm.clearError()
+                        }
+                    }
+                
+                VStack {
+                    Spacer()
+                    
+                    if error.type == .authentication {
+                        ErrorView.authenticationError(
+                            message: error.message,
+                            loginAction: {
+                                withAnimation {
+                                    showError = false
+                                    vm.clearError()
+                                }
+                            },
+                            dismissAction: {
+                                withAnimation {
+                                    showError = false
+                                    vm.clearError()
+                                }
+                            }
+                        )
+                    } else if error.type == .validation {
+                        ErrorView.validationError(
+                            message: error.message,
+                            dismissAction: {
+                                withAnimation {
+                                    showError = false
+                                    vm.clearError()
+                                }
+                            }
+                        )
+                    } else {
+                        ErrorView.networkError(
+                            message: error.message,
+                            retryAction: {
+                                withAnimation {
+                                    showError = false
+                                    vm.clearError()
+                                }
+                                Task {
+                                    await login()
+                                }
+                            },
+                            dismissAction: {
+                                withAnimation {
+                                    showError = false
+                                    vm.clearError()
+                                }
+                            }
+                        )
+                    }
+                    
+                    Spacer()
+                }
+                .transition(.opacity.combined(with: .scale))
+            }
         }
-        .navigationTitle("Login")
-        .navigationBarBackButtonHidden(true)
+        .animation(.easeInOut(duration: 0.3), value: showError)
     }
 }
-
 
 #Preview {
     LoginScreen()

@@ -9,16 +9,16 @@ import SwiftUI
 
 struct GroceryCategoryListScreen: View {
     @Environment(GroceryViewModel.self) private var groceryVM
-    @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
     
     @State private var isPresented: Bool = false
+    @State private var showError = false
 
     private func fetchGroceryCategories() async {
         do {
             try await groceryVM.populateGroceryCategories()
         } catch {
-            print(error.localizedDescription)
+            showError = true
         }
     }
     
@@ -30,82 +30,156 @@ struct GroceryCategoryListScreen: View {
                 do {
                     try await groceryVM.deleteGroceryCategory(groceryCategoryId: groceryCategories.id)
                 } catch {
-                    print(error.localizedDescription)
+                    showError = true
                 }
             }
         }
     }
     
     var body: some View {
-        Group {
-            if groceryVM.groceryCategories.isEmpty {
-                // Empty state view
-                VStack(spacing: 16) {
-                    Image(systemName: "list.bullet.circle")
-                        .font(.system(size: 60))
-                        .foregroundColor(.gray)
-                    
-                    Text("Keine Kategorien vorhanden")
-                        .font(.title2)
-                        .fontWeight(.medium)
-                        .foregroundColor(.primary)
-                    
-                    Text("Fügen Sie Ihre erste Kategorie hinzu, um zu beginnen")
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                    
+        ZStack {
+            Group {
+                if groceryVM.isLoading && groceryVM.groceryCategories.isEmpty {
+                    // Loading state
+                    VStack {
+                        ProgressView()
+                            .scaleEffect(1.2)
+                        Text("Kategorien werden geladen...")
+                            .foregroundColor(.secondary)
+                            .padding(.top)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if groceryVM.groceryCategories.isEmpty && !groceryVM.isLoading {
+                    // Empty state view
+                    VStack(spacing: 16) {
+                        Image(systemName: "list.bullet.circle")
+                            .font(.system(size: 60))
+                            .foregroundColor(.gray)
+                        
+                        Text("Keine Kategorien vorhanden")
+                            .font(.title2)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+                        
+                        Text("Fügen Sie Ihre erste Kategorie hinzu, um zu beginnen")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                        
+                        Button {
+                            isPresented = true
+                        } label: {
+                            Label("Kategorie hinzufügen", systemImage: "plus.circle.fill")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .padding(.top)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(.systemGroupedBackground))
+                } else {
+                    // List with categories
+                    List {
+                        ForEach(groceryVM.groceryCategories) { groceryCategory in
+                            NavigationLink(value: Route.groceryCategoryDetail(groceryCategory)) {
+                                HStack {
+                                    Circle()
+                                        .fill(Color.fromHex(groceryCategory.colorCode))
+                                        .frame(width: 24, height: 24)
+                                    Text(groceryCategory.title)
+                                }
+                            }
+                        }.onDelete(perform: deleteGroceryCategory)
+                    }
+                    .refreshable {
+                        await fetchGroceryCategories()
+                    }
+                }
+            }
+            .task {
+                await fetchGroceryCategories()
+            }
+            .navigationTitle("Categories")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Logout") {
+                        // TODO: Implement logout
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         isPresented = true
                     } label: {
-                        Label("Kategorie hinzufügen", systemImage: "plus.circle.fill")
+                        Image(systemName: "plus")
                     }
-                    .buttonStyle(.borderedProminent)
-                    .padding(.top)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(.systemGroupedBackground))
-            } else {
-                // List with categories
-                List {
-                    ForEach(groceryVM.groceryCategories) { groceryCategory in
-                        NavigationLink(value: Route.groceryCategoryDetail(groceryCategory)) {
-                            HStack {
-                                Circle()
-                                    .fill(Color.fromHex(groceryCategory.colorCode))
-                                    .frame(width: 24, height: 24)
-                                Text(groceryCategory.title)
-                            }
+            }
+            .sheet(isPresented: $isPresented) {
+                NavigationStack {
+                    AddGroceryCategoryScreen()
+                }
+            }
+            .disabled(groceryVM.isLoading)
+            
+            // Error Overlay
+            if showError, let error = groceryVM.currentError {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation {
+                            showError = false
+                            groceryVM.clearError()
                         }
-                    }.onDelete(perform: deleteGroceryCategory)
+                    }
+                
+                VStack {
+                    Spacer()
+                    
+                    if error.type == .authentication {
+                        ErrorView.authenticationError(
+                            message: error.message,
+                            loginAction: {
+                                withAnimation {
+                                    showError = false
+                                    groceryVM.clearError()
+                                }
+                                // Navigate to login
+                                // appState.routes = [.login]
+                            },
+                            dismissAction: {
+                                withAnimation {
+                                    showError = false
+                                    groceryVM.clearError()
+                                }
+                            }
+                        )
+                    } else {
+                        ErrorView.networkError(
+                            message: error.message,
+                            retryAction: {
+                                withAnimation {
+                                    showError = false
+                                    groceryVM.clearError()
+                                }
+                                Task {
+                                    await fetchGroceryCategories()
+                                }
+                            },
+                            dismissAction: {
+                                withAnimation {
+                                    showError = false
+                                    groceryVM.clearError()
+                                }
+                            }
+                        )
+                    }
+                    
+                    Spacer()
                 }
+                .transition(.opacity.combined(with: .scale))
             }
         }
-        .task {
-            await fetchGroceryCategories()
-        }
-        .navigationTitle("Categories")
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Logout") {
-                    groceryVM.logout()
-                    appState.routes.append(.login)
-                }
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    isPresented = true
-                } label: {
-                    Image(systemName: "plus")
-                }
-            }
-        }.sheet(isPresented: $isPresented) {
-            NavigationStack {
-                AddGroceryCategoryScreen()
-            }
-        }
+        .animation(.easeInOut(duration: 0.3), value: showError)
     }
 }
 
