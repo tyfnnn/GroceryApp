@@ -22,7 +22,7 @@ struct GroceryAppApp: App {
                                 
                 Group {
                     if token == nil {
-                        RegistrationScreen()
+                        AuthenticationScreen()
                     } else {
                         GroceryCategoryListScreen()
                     }
@@ -30,9 +30,9 @@ struct GroceryAppApp: App {
                     .navigationDestination(for: Route.self) { route in
                         switch route {
                         case .register:
-                            RegistrationScreen()
+                            AuthenticationScreen()
                         case .login:
-                            LoginScreen()
+                            AuthenticationScreen()
                         case .groceryCategoryList:
                             GroceryCategoryListScreen()
                         case .groceryCategoryDetail(let groceryCategory):
