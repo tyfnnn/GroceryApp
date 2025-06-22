@@ -14,9 +14,19 @@ struct GroceryAppApp: App {
     @State private var appStateVM = AppState()
     
     var body: some Scene {
+        let defaults = UserDefaults.standard
+        let token = defaults.string(forKey: "authToken")
+        
         WindowGroup {
             NavigationStack(path: $appStateVM.routes) {
-                RegistrationScreen()
+                                
+                Group {
+                    if token == nil {
+                        RegistrationScreen()
+                    } else {
+                        GroceryCategoryListScreen()
+                    }
+                }
                     .navigationDestination(for: Route.self) { route in
                         switch route {
                         case .register:

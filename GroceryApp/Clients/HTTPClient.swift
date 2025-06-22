@@ -60,6 +60,16 @@ struct Resource<T: Codable> {
 
 // HTTP-Client für Netzwerkanfragen mit moderner Swift-Concurrency
 struct HTTPClient {
+    private var defaultHeaders: [String: String] {
+        var headers = ["Content-Type": "application/json"]
+        
+        let defaults = UserDefaults.standard
+        guard let token = defaults.string(forKey: "authToken") else { return headers }
+        
+        headers["Authorization"] = "Bearer \(token)"
+        return headers
+    }
+    
     // Generische Methode, die eine Resource lädt und die dekodierten Daten zurückgibt
     func load<T: Codable>(_ resource: Resource<T>) async throws -> T {
         var request = URLRequest(url: resource.url)
@@ -88,7 +98,7 @@ struct HTTPClient {
         
         // Erstelle eine Standard-URL-Session-Konfiguration
         let configuration = URLSessionConfiguration.default
-        configuration.httpAdditionalHeaders = ["Content-Type": "application/json"]
+        configuration.httpAdditionalHeaders = defaultHeaders
         let session = URLSession(configuration: configuration)
         
         // Führe die Netzwerkanfrage mit async/await aus
