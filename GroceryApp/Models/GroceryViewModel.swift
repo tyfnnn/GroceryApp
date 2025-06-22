@@ -129,6 +129,21 @@ class GroceryViewModel {
         }
     }
     
+    func logout() {
+        // Clear stored authentication data
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "authToken")
+        defaults.removeObject(forKey: "userId")
+        
+        // Clear local data
+        groceryCategories.removeAll()
+        groceryItems.removeAll()
+        groceryCategory = nil
+        
+        // Clear any errors
+        clearError()
+    }
+    
     // MARK: - Grocery Categories
     func populateGroceryCategories() async throws {
         guard let userId = UserDefaults.standard.userId else {

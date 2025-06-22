@@ -10,9 +10,11 @@ import SwiftUI
 struct GroceryCategoryListScreen: View {
     @Environment(GroceryViewModel.self) private var groceryVM
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppState.self) private var appStateVM
     
     @State private var isPresented: Bool = false
     @State private var showError = false
+    @State private var showLogoutAlert = false
 
     private func fetchGroceryCategories() async {
         do {
@@ -103,8 +105,9 @@ struct GroceryCategoryListScreen: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Logout") {
-                        // TODO: Implement logout
+                        showLogoutAlert = true
                     }
+                    .foregroundColor(.red)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -180,6 +183,15 @@ struct GroceryCategoryListScreen: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: showError)
+        .alert("Abmelden", isPresented: $showLogoutAlert) {
+            Button("Abbrechen", role: .cancel) { }
+            Button("Abmelden", role: .destructive) {
+                groceryVM.logout()
+                appStateVM.routes.removeAll()
+            }
+        } message: {
+            Text("Möchten Sie sich wirklich abmelden?")
+        }
     }
 }
 

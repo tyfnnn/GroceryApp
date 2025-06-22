@@ -14,14 +14,11 @@ struct GroceryAppApp: App {
     @State private var appStateVM = AppState()
     
     var body: some Scene {
-        let defaults = UserDefaults.standard
-        let token = defaults.string(forKey: "authToken")
-        
         WindowGroup {
             NavigationStack(path: $appStateVM.routes) {
                                 
                 Group {
-                    if token == nil {
+                    if UserDefaults.standard.string(forKey: "authToken") == nil {
                         AuthenticationScreen()
                     } else {
                         GroceryCategoryListScreen()
@@ -42,6 +39,11 @@ struct GroceryAppApp: App {
             }
             .environment(groceryVM)
             .environment(appStateVM)
+            .onChange(of: UserDefaults.standard.string(forKey: "authToken")) { oldValue, newValue in
+                if newValue == nil {
+                    appStateVM.routes.removeAll()
+                }
+            }
         }
     }
 }
